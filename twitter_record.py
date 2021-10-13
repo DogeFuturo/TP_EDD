@@ -42,9 +42,9 @@ class Tweet_Record:
         r = self.api.request('tweets/search/stream/rules', {'delete': {'values':values_list}})
         print(f'[{r.status_code}] RULE DELETED : {json.dumps(r.json(), indent=2)}\n')
 
-    def stream_tweet(expansions, tweet_fields,user_fields):
+    def stream_tweet(self,EXPANSIONS,TWEET_FIELDS,USER_FIELDS):
         try:
-            r = api.request('tweets/search/stream', {
+            r = self.api.request('tweets/search/stream', {
                     'expansions': EXPANSIONS,
                     'tweet.fields': TWEET_FIELDS,
                     'user.fields': USER_FIELDS,
@@ -55,14 +55,12 @@ class Tweet_Record:
             for item in r:
                 print(json.dumps(item, indent=2))
         except KeyboardInterrupt:
-           print('\nDone!')
+            print('\nDone!')
         except TwitterRequestError as e:
            print(f'\n{e.status_code}')
-           for msg in iter(e):
-               print(msg)
+           for msg in iter(e):print(msg)
         except TwitterConnectionError as e:
            print(e)
         except Exception as e:
            print(e)
 
-            
