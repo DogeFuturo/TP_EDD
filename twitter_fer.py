@@ -32,7 +32,7 @@ def stream_tweets(query, expansions, tweet_fields, user_fields):
         print(f'[{r.status_code}] RULE ADDED: {json.dumps(r.json(), indent=2)}\n')
         if r.status_code != 201: exit()
 
-        # START STREAM
+        # START STREA
         r = api.request('tweets/search/stream', {
             'expansions': EXPANSIONS,
             'tweet.fields': TWEET_FIELDS,
