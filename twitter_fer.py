@@ -1,11 +1,10 @@
 from TwitterAPI import TwitterAPI, TwitterOAuth, TwitterRequestError, TwitterConnectionError, HydrateType, OAuthType
 import json
 
-QUERY = '"pizza" OR "hamburguesa"'
-EXPANSIONS = 'author_id,referenced_tweets.id,referenced_tweets.id.author_id,in_reply_to_user_id,attachments.media_keys,attachments.poll_ids,geo.place_id,entities.mentions.username'
-TWEET_FIELDS = 'author_id,conversation_id,created_at,entities,geo,id,lang,public_metrics,source,text'
-USER_FIELDS = 'created_at,description,entities,location,name,profile_image_url,public_metrics,url,username'
-
+#QUERY = '"pizza" OR "hamburguesa"'
+#EXPANSIONS = 'author_id,referenced_tweets.id,referenced_tweets.id.author_id,in_reply_to_user_id,attachments.media_keys,attachments.poll_ids,geo.place_id,entities.mentions.username'
+#TWEET_FIELDS = 'created_at,text'
+#USER_FIELDS = 'created_at,name,profile_image_url,username'
 
 def delete_rules(stream_rules, api):
     rules = [tweet['value'] for tweet in stream_rules]
@@ -32,7 +31,7 @@ def stream_tweets(query, expansions, tweet_fields, user_fields):
         print(f'[{r.status_code}] RULE ADDED: {json.dumps(r.json(), indent=2)}\n')
         if r.status_code != 201: exit()
 
-        # START STREA
+        # START STREAM
         r = api.request('tweets/search/stream', {
             'expansions': EXPANSIONS,
             'tweet.fields': TWEET_FIELDS,
@@ -42,8 +41,33 @@ def stream_tweets(query, expansions, tweet_fields, user_fields):
 
         print(f'[{r.status_code}] START...')
         if r.status_code != 200: exit()
-        for item in r:
-            print(json.dumps(item, indent=2))
+        #CARGA EN DISCO
+
+        #with open("dict_pais_puntajes.json", "w",encoding ="utf-8") as archivo:
+            #json.dump(diccionario,  archivo, ensure_ascii=False)
+
+        with open("database_tomas.json", "a", encoding ="utf-8") as db:
+            x = 0
+            for item in r:
+                if x < 10:
+                    created_at = item["data"]["created_at"]
+                    text = item["data"]["text"]
+                    username = item["data"]["author_id_hydrate"]["username"]
+                    name = item["data"]["author_id_hydrate"]["name"]
+                    id = str(item["data"]["id"])
+
+                    dic = {id:{}}
+                    dic[id].setdefault("created_at", created_at)
+                    dic[id].setdefault("text", text)
+                    dic[id].setdefault("username", username)
+                    dic[id].setdefault("name", name)
+                    x+=1
+                else:
+                    break
+
+            json.dump(dic, db, ensure_ascii=False, indent=2)
+
+                #print(json.dumps(item, indent=2))
 
     except KeyboardInterrupt:
         print('\nDone!')
@@ -61,7 +85,7 @@ def stream_tweets(query, expansions, tweet_fields, user_fields):
 
 
 QUERY = 'dogecoin'
-EXPANSIONS = 'author_id,referenced_tweets.id,referenced_tweets.id.author_id,in_reply_to_user_id,attachments.media_keys,attachments.poll_ids,geo.place_id,entities.mentions.username'
-TWEET_FIELDS = 'author_id,conversation_id,created_at,entities,geo,id,lang,public_metrics,source,text'
-USER_FIELDS = 'created_at,description,entities,location,name,profile_image_url,public_metrics,url,username'
+EXPANSIONS = 'author_id'
+TWEET_FIELDS = 'created_at,text'
+USER_FIELDS = 'name,username'
 r = stream_tweets(QUERY, EXPANSIONS, TWEET_FIELDS, USER_FIELDS)
