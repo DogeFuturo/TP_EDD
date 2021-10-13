@@ -42,7 +42,7 @@ class Tweet_Record:
         r = self.api.request('tweets/search/stream/rules', {'delete': {'values':values_list}})
         print(f'[{r.status_code}] RULE DELETED : {json.dumps(r.json(), indent=2)}\n')
 
-    def stream_tweet(self,expansions, tweet_fields,user_fields):
+    def stream_tweet(self,EXPANSIONS,TWEET_FIELDS,USER_FIELDS):
         try:
             r = self.api.request('tweets/search/stream', {
                     'expansions': EXPANSIONS,
