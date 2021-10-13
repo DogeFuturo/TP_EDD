@@ -29,8 +29,7 @@ class Tweet_Record:
         
         except TwitterRequestError as e:
             print(f'\n{e.status_code}')
-            for msg in iter(e):
-                print(msg)
+            for msg in iter(e):print(msg)
         
         except TwitterConnectionError as e:print(e)
 
@@ -42,3 +41,28 @@ class Tweet_Record:
         values_list = [tweet['value'] for tweet in r]
         r = self.api.request('tweets/search/stream/rules', {'delete': {'values':values_list}})
         print(f'[{r.status_code}] RULE DELETED : {json.dumps(r.json(), indent=2)}\n')
+
+    def stream_tweet(expansions, tweet_fields,user_fields):
+        try:
+            r = api.request('tweets/search/stream', {
+                    'expansions': EXPANSIONS,
+                    'tweet.fields': TWEET_FIELDS,
+                    'user.fields': USER_FIELDS,
+                },
+                hydrate_type=HydrateType.APPEND)
+            print(f'[{r.status_code}] START...')
+            if r.status_code != 200: exit()
+            for item in r:
+                print(json.dumps(item, indent=2))
+        except KeyboardInterrupt:
+           print('\nDone!')
+        except TwitterRequestError as e:
+           print(f'\n{e.status_code}')
+           for msg in iter(e):
+               print(msg)
+        except TwitterConnectionError as e:
+           print(e)
+        except Exception as e:
+           print(e)
+
+            
