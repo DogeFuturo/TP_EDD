@@ -72,8 +72,15 @@ class Tweet_Record:
         except FileNotFoundError:
             open("tweets.json", "w",encoding="utf-8")
         for tweet in api_request:
+
             id = str(tweet["data"]["id"])
-            dicc_json[id] = tweet
+            dicc_json[id] = {
+                "created_at": tweet["data"]["created_at"],
+                "name" : tweet["data"]["author_id_hydrate"]["name"],
+                "username":tweet["data"]["author_id_hydrate"]["username"],
+                "text" :tweet["data"]["text"]
+                }
+
             tweets_recolectados += 1
             if (tweets_recolectados >= cantidad_tweets):break
             
@@ -84,7 +91,7 @@ if __name__ == "__main__":
     QUERY = 'dogecoin -is:retweet'
     EXPANSIONS = 'author_id'
     TWEET_FIELDS = 'created_at,text'
-    USER_FIELDS = 'name,username' 
+    USER_FIELDS = 'name,username'
 
     record = Tweet_Record(credenciales.API_KEY,credenciales.API_SECRET_KEY)
     record.clear_rules()
