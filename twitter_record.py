@@ -1,4 +1,6 @@
 from TwitterAPI import TwitterAPI, TwitterOAuth, TwitterRequestError, TwitterConnectionError, HydrateType, OAuthType
+import credenciales
+from datetime import datetime
 import json 
 
 class Tweet_Record:
@@ -30,9 +32,7 @@ class Tweet_Record:
         except TwitterRequestError as e:
             print(f'\n{e.status_code}')
             for msg in iter(e):print(msg)
-        
         except TwitterConnectionError as e:print(e)
-
         except Exception as e:print(e)
     
     def clear_rules(self):
@@ -52,8 +52,7 @@ class Tweet_Record:
                 hydrate_type=HydrateType.APPEND)
             print(f'[{r.status_code}] START...')
             if r.status_code != 200: exit()
-            for item in r:
-                print(json.dumps(item, indent=2))
+            while(True): self.persistir_tweets(1,r)
         except KeyboardInterrupt:
             print('\nDone!')
         except TwitterRequestError as e:
@@ -63,4 +62,31 @@ class Tweet_Record:
            print(e)
         except Exception as e:
            print(e)
+        
+    def persistir_tweets(self,cantidad_tweets,api_request):
+        dicc_json = dict()
+        tweets_recolectados = 0
+        try:
+            with open("tweets.json", "r",encoding="utf-8") as archivo_json:
+                dicc_json = json.load(archivo_json)
+        except FileNotFoundError:
+            open("tweets.json", "w",encoding="utf-8")
+        for tweet in api_request:
+            id = str(tweet["data"]["id"])
+            dicc_json[id] = tweet
+            tweets_recolectados += 1
+            if (tweets_recolectados >= cantidad_tweets):break
+            
+        with open("tweets.json", "w",encoding="utf-8") as archvo_json:
+            json.dump(dicc_json, archvo_json,indent=2, ensure_ascii = False)
 
+if __name__ == "__main__":
+    QUERY = 'dogecoin -is:retweet'
+    EXPANSIONS = 'author_id'
+    TWEET_FIELDS = 'created_at,text'
+    USER_FIELDS = 'name,username' 
+
+    record = Tweet_Record(credenciales.API_KEY,credenciales.API_SECRET_KEY)
+    record.clear_rules()
+    record.add_rules(QUERY)
+    record.stream_tweet(EXPANSIONS,TWEET_FIELDS,USER_FIELDS)
