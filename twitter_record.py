@@ -6,6 +6,7 @@ import json
 class Tweet_Record:
     def __init__(self,API_KEY,API_SECRET_KEY):
         self.api = self._devolver_api(API_KEY,API_SECRET_KEY) 
+        self.tweets_acumulados = 0
 
     def _devolver_api(self,API_KEY,API_SECRET_KEY):
         try: api = TwitterAPI(API_KEY,API_SECRET_KEY, auth_type=OAuthType.OAUTH2, api_version='2') 
@@ -82,8 +83,10 @@ class Tweet_Record:
                 }
 
             tweets_recolectados += 1
+            self.tweets_acumulados += 1
+            print ("Tweets ", self.tweets_acumulados)
+
             if (tweets_recolectados >= cantidad_tweets):break
-            
         with open("tweets.json", "w",encoding="utf-8") as archvo_json:
             json.dump(dicc_json, archvo_json,indent=2, ensure_ascii = False)
 
